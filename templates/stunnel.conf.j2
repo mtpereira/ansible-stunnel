@@ -1,0 +1,31 @@
+{% ansible_managed %}
+{% if stunnel_chroot is defined -%}
+chroot = {{ stunnel_chroot }}
+setuid = stunnel4
+setgid = stunnel4
+pid = /stunnel4.pid
+{% endif %}
+
+debug = {{ stunnel_debug_level }}
+output = {{ stunnel_log }}
+
+cert = {{ stunnel_cert }}
+{% if stunnel_key is defined -%}
+key = {{ stunnel_key }}
+{% endif %}
+
+{% if stunnel_verify_level is defined -%}
+verify = {{ stunnel_verify_level }}
+{% endif %}
+CApath = {{ stunnel_ca_path }}
+{% if stunnel_ca_file is defined -%}
+CAfile = {{ stunnel_ca_file }}
+{% endif %}
+CRLpath = {{ stunnel_crl_path }}
+{% if stunnel_crl_file is defined -%}
+CRLfile = {{ stunnel_crl_file }}
+{% endif %}
+
+options = {{ stunnel_ssl_options }}
+
+; vim:ft=dosini

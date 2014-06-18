@@ -1,0 +1,75 @@
+---
+- name: chroot - install dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - chrootuid
+    - makejail
+
+- name: chroot - create dir structure
+  file:
+    state=directory
+    dest={{ stunnel_chroot }}/{{ item }}
+    mode=0700
+    owner=stunnel4
+    group=stunnel4
+    recurse=yes
+  with_items:
+    - etc/stunnel
+    - dev
+    - tmp
+    - lib
+    - bin
+    - var/log
+    - var/run
+    - "{{ stunnel_ca_path }}"
+    - "{{ stunnel_crl_path }}"
+
+- name: chroot - symlink log file
+  file:
+    state=link
+    src={{ stunnel_chroot}}/var/log/{{ stunnel_log}}
+    dest={{ stunnel_log }}
+    owner=root
+    group=root
+    force=yes
+
+- name: chroot - copy stunnel
+  command: cp -f /usr/bin/stunnel {{ stunnel_chroot}}/bin/stunnel creates={{ stunnel_chroot}}/bin/stunnel
+
+- name: chroot - register required libs
+  shell: ldd /usr/bin/stunnel4 | awk '{print $3}' | grep -Po '^/.*[0-9]$'
+  register: libs
+
+- name: chroot - copy libs
+  command: cp -f {{ item }} {{ stunnel_chroot}}/lib/{{ item | basename }} creates={{ stunnel_chroot}}/lib/{{ item | basename }}
+  with_items: libs.stdout_lines
+
+- name: chroot - copy /etc files
+  command: cp -f /etc/{{ item }} {{ stunnel_chroot}}/etc/{{ item }} creates={{ stunnel_chroot}}/etc/{{ item }}
+  with_items:
+    - hosts
+    - timezone
+    - nsswitch.conf
+    - resolv.conf
+
+- name: chroot - create /dev/urandom
+  command: mknod -m 644 urandom c 1 9 chdir={{ stunnel_chroot }}/dev creates={{ stunnel_chroot }}/dev/urandom
+
+- name: chroot - create /dev/null
+  command: mknod -m 644 null c 1 3 chdir={{ stunnel_chroot }}/dev creates={{ stunnel_chroot }}/dev/null
+
+- name: chroot - create /dev/zero
+  command: mknod -m 644 zero c 1 5 chdir={{ stunnel_chroot }}/dev creates={{ stunnel_chroot }}/dev/zero
+
+- name: chroot - create /etc/passwd and /etc/group
+  shell: grep stunnel /etc/{{ item }} >> {{ stunnel_chroot }}/etc/{{ item }} creates={{ stunnel_chroot }}/etc/{{ item }}
+  with_items:
+    - passwd
+    - group
+
+- name: chroot - patch init script
+  lineinfile:
+    regexp='^\s+elif \$DAEMON \$ARGS; then$'
+    line='elif chrootuid {{ stunnel_chroot }} stunnel4 $DAEMON $ARGS; then'
+    state=present
+

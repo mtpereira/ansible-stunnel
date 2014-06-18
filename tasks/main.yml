@@ -1,0 +1,9 @@
+---
+- include: install.yml
+  tags: stunnel_install
+
+- include: ssl.yml
+  tags: stunnel_ssl
+
+- include: services.yml
+  tags: stunnel_services

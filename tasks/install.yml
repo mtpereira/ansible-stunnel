@@ -1,0 +1,25 @@
+---
+- name: install - install stunnel4 and ca-certificates
+  apt: pkg={{ item }} cache_valid_time=3600 update=yes state=installed
+  with_items:
+    - stunnel4
+    - ca-certificates
+
+- name: install - base configuration
+  template:
+    src=stunnel.config.j2
+    dest=/etc/stunnel/00-stunnel.config
+    owner=root
+    group=root
+    mode=0644
+    state=present
+
+- name: install - enable daemon
+  lineinfile:
+    dest=/etc/default/stunnel4
+    regexp='^ENABLED=0$'
+    line='ENABLED=1'
+    state=present
+
+- include: chroot.yml
+  when: stunnel_chroot is defined
