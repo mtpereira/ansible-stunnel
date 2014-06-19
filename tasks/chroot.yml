@@ -19,7 +19,7 @@
     - dev
     - tmp
     - lib
-    - bin
+    - usr/bin
     - var/log
     - var/run
     - "{{ stunnel_ca_path }}"
@@ -29,14 +29,14 @@
 - name: chroot - symlink log file
   file:
     state=link
-    src={{ stunnel_chroot}}/var/log/{{ stunnel_log}}
+    src={{ stunnel_chroot}}/{{ stunnel_log}}
     dest={{ stunnel_log }}
     owner=root
     group=root
     force=yes
 
 - name: chroot - copy stunnel
-  command: cp -f /usr/bin/stunnel {{ stunnel_chroot}}/bin/stunnel creates={{ stunnel_chroot}}/bin/stunnel
+  command: cp -f /usr/bin/stunnel4 {{ stunnel_chroot}}/usr/bin/stunnel creates={{ stunnel_chroot}}/usr/bin/stunnel
   notify: stunnel - restart
 
 - name: chroot - register required libs
@@ -44,7 +44,12 @@
   register: libs
 
 - name: chroot - copy libs
-  command: cp -f {{ item }} {{ stunnel_chroot}}/lib/{{ item | basename }} creates={{ stunnel_chroot}}/lib/{{ item | basename }}
+  shell: cp -a -f $(readlink -f {{ item }}) {{ stunnel_chroot}}/lib/
+  with_items: libs.stdout_lines
+  notify: stunnel - restart
+
+- name: chroot - copy symlinks to libs
+  command: cp -a -f {{ item }} {{ stunnel_chroot}}/lib/ creates={{ stunnel_chroot}}/lib/{{ item }}
   with_items: libs.stdout_lines
   notify: stunnel - restart
 
@@ -55,6 +60,8 @@
     - timezone
     - nsswitch.conf
     - resolv.conf
+    - stunnel/00-stunnel.conf
+    - stunnel/01-services.conf
   notify: stunnel - restart
 
 - name: chroot - create /dev/urandom
@@ -78,7 +85,8 @@
 
 - name: chroot - patch init script
   lineinfile:
-    regexp='^\s+elif \$DAEMON \$ARGS; then$'
-    line='elif chrootuid {{ stunnel_chroot }} stunnel4 $DAEMON $ARGS; then'
-    state=present
+    dest=/etc/init.d/stunnel4
+    backrefs=yes
+    regexp='^(\s+elif) (\$DAEMON \$ARGS; then)$'
+    line='\1 chrootuid {{ stunnel_chroot }} stunnel4 \2'
   notify: stunnel - restart

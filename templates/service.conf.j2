@@ -1,6 +1,6 @@
-{% ansible_managed %}
+;{{ ansible_managed }}
 
-{% for item in stunnel_services -%}
+{% for service in stunnel_services -%}
 [{{ service.name }}]
 client = {{ service.client | default(no) }}
 accept = {{ service.accept_host }}:{{ service.accept_port }}
@@ -10,4 +10,5 @@ connect = {{ service.connect_host }}:{{ service.connect_host }}
 {{ option }} = {{ value }}
 {% endfor %}
 {% endif %}
+
 {% endfor %}

@@ -1,9 +1,9 @@
 ---
-stunnel_chroot: /var/lib/stunnel4
-stunnel_debug: 1
-stunnel_log: /var/log/stunnel4/stunnel.log
+stunnel_debug_level: 1
+stunnel_log: /var/log/stunnel.log
+stunnel_pid: /var/run/stunnel4/stunnel.pid
 stunnel_cert: /etc/stunnel/cert.pem
 stunnel_verify_level: 3
-stunnel_ca_path: /certs
-stunnel_crl_path: /crls
+stunnel_ca_path: /etc/ssl/certs
+stunnel_crl_path: /etc/ssl/certs
 stunnel_ssl_options: 'NO_SSLv2'

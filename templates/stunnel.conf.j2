@@ -1,4 +1,4 @@
-{% ansible_managed %}
+;{{ ansible_managed }}
 {% if stunnel_chroot is defined -%}
 chroot = {{ stunnel_chroot }}
 setuid = stunnel4
@@ -8,6 +8,7 @@ pid = /stunnel4.pid
 
 debug = {{ stunnel_debug_level }}
 output = {{ stunnel_log }}
+pid = {{ stunnel_pid }}
 
 cert = {{ stunnel_cert }}
 {% if stunnel_key is defined -%}
@@ -28,4 +29,15 @@ CRLfile = {{ stunnel_crl_file }}
 
 options = {{ stunnel_ssl_options }}
 
-; vim:ft=dosini
+{% for service in stunnel_services -%}
+[{{ service.name }}]
+client = {{ service.client | default(no) }}
+accept = {{ service.accept_host }}:{{ service.accept_port }}
+connect = {{ service.connect_host }}:{{ service.connect_host }}
+{% if service.other_options is defined -%}
+{% for option, value in service.other_options.iteritems() -%}
+{{ option }} = {{ value }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}

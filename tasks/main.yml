@@ -5,5 +5,6 @@
 - include: ssl.yml
   tags: stunnel_ssl
 
-- include: services.yml
-  tags: stunnel_services
+- include: chroot.yml
+  when: stunnel_chroot is defined
+  tags: stunnel_chroot
