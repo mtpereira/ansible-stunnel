@@ -19,6 +19,8 @@ stunnel_services:
       verify: 3
       local: localhost
 
+# dummy cert generated for testing purposes
+# DO NOT USE IT FOR ANY OTHER PURPOSE!
 stunnel_cert_content: |
   -----BEGIN PRIVATE KEY-----
   MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCsTx9oyy6+Gj4C

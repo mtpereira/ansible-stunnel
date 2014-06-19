@@ -4,7 +4,3 @@
 
 - include: ssl.yml
   tags: stunnel_ssl
-
-- include: chroot.yml
-  when: stunnel_chroot is defined
-  tags: stunnel_chroot
