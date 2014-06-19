@@ -15,15 +15,6 @@
     mode=0644
   notify: stunnel - restart
 
-- name: install - change logfile owner
-  file:
-    dest={{ stunnel_log }}
-    owner=stunnel4
-    group=stunnel4
-    mode=0600
-    state=file
-  notify: stunnel - restart
-
 - name: install - enable daemon
   lineinfile:
     dest=/etc/default/stunnel4
