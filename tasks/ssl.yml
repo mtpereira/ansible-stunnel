@@ -1,0 +1,10 @@
+---
+- name: ssl - add certificate
+  template:
+    src=cert.pem.j2
+    dest={{ stunnel_chroot | default(/) }}{{ stunnel_cert }}
+    owner=stunnel4
+    group=stunnel4
+    mode=0600
+    state=present
+  notify: stunnel - restart

@@ -4,6 +4,7 @@
   with_items:
     - chrootuid
     - makejail
+  notify: stunnel - restart
 
 - name: chroot - create dir structure
   file:
@@ -23,6 +24,7 @@
     - var/run
     - "{{ stunnel_ca_path }}"
     - "{{ stunnel_crl_path }}"
+  notify: stunnel - restart
 
 - name: chroot - symlink log file
   file:
@@ -35,6 +37,7 @@
 
 - name: chroot - copy stunnel
   command: cp -f /usr/bin/stunnel {{ stunnel_chroot}}/bin/stunnel creates={{ stunnel_chroot}}/bin/stunnel
+  notify: stunnel - restart
 
 - name: chroot - register required libs
   shell: ldd /usr/bin/stunnel4 | awk '{print $3}' | grep -Po '^/.*[0-9]$'
@@ -43,6 +46,7 @@
 - name: chroot - copy libs
   command: cp -f {{ item }} {{ stunnel_chroot}}/lib/{{ item | basename }} creates={{ stunnel_chroot}}/lib/{{ item | basename }}
   with_items: libs.stdout_lines
+  notify: stunnel - restart
 
 - name: chroot - copy /etc files
   command: cp -f /etc/{{ item }} {{ stunnel_chroot}}/etc/{{ item }} creates={{ stunnel_chroot}}/etc/{{ item }}
@@ -51,25 +55,30 @@
     - timezone
     - nsswitch.conf
     - resolv.conf
+  notify: stunnel - restart
 
 - name: chroot - create /dev/urandom
   command: mknod -m 644 urandom c 1 9 chdir={{ stunnel_chroot }}/dev creates={{ stunnel_chroot }}/dev/urandom
+  notify: stunnel - restart
 
 - name: chroot - create /dev/null
   command: mknod -m 644 null c 1 3 chdir={{ stunnel_chroot }}/dev creates={{ stunnel_chroot }}/dev/null
+  notify: stunnel - restart
 
 - name: chroot - create /dev/zero
   command: mknod -m 644 zero c 1 5 chdir={{ stunnel_chroot }}/dev creates={{ stunnel_chroot }}/dev/zero
+  notify: stunnel - restart
 
 - name: chroot - create /etc/passwd and /etc/group
   shell: grep stunnel /etc/{{ item }} >> {{ stunnel_chroot }}/etc/{{ item }} creates={{ stunnel_chroot }}/etc/{{ item }}
   with_items:
     - passwd
     - group
+  notify: stunnel - restart
 
 - name: chroot - patch init script
   lineinfile:
     regexp='^\s+elif \$DAEMON \$ARGS; then$'
     line='elif chrootuid {{ stunnel_chroot }} stunnel4 $DAEMON $ARGS; then'
     state=present
-
+  notify: stunnel - restart
