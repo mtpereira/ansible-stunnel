@@ -33,7 +33,7 @@ options = {{ stunnel_ssl_options }}
 [{{ service.name }}]
 client = {{ service.client | default(no) }}
 accept = {{ service.accept_host }}:{{ service.accept_port }}
-connect = {{ service.connect_host }}:{{ service.connect_host }}
+connect = {{ service.connect_host }}:{{ service.connect_port }}
 {% if service.other_options is defined -%}
 {% for option, value in service.other_options.iteritems() -%}
 {{ option }} = {{ value }}
