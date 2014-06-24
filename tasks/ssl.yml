@@ -7,3 +7,13 @@
     group=stunnel4
     mode=0600
   notify: stunnel - restart
+
+- name: ssl - add CA chain certificate
+  template:
+    src=cacert.pem.j2
+    dest={{ stunnel_ca_file }}
+    owner=stunnel4
+    group=stunnel4
+    mode=0600
+  notify: stunnel - restart
+  when: "{{ stunnel_ca_file }} is defined"

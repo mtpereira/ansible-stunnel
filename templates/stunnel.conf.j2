@@ -1,10 +1,11 @@
 ;{{ ansible_managed }}
 {% if stunnel_chroot is defined -%}
 chroot = {{ stunnel_chroot }}
-setuid = stunnel4
-setgid = stunnel4
 pid = /stunnel4.pid
 {% endif %}
+
+setuid = {{ stunnel_user }}
+setgid = {{ stunnel_group }}
 
 debug = {{ stunnel_debug_level }}
 output = {{ stunnel_log }}
