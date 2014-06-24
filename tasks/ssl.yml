@@ -16,4 +16,4 @@
     group=stunnel4
     mode=0600
   notify: stunnel - restart
-  when: "{{ stunnel_ca_file }} is defined"
+  when: stunnel_ca_file is defined and stunnel_ca_content is defined
