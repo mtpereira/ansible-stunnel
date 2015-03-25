@@ -10,3 +10,4 @@ galaxy_info:
         - wheezy
   categories:
     - system
+dependencies: []
